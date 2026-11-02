@@ -41,8 +41,7 @@ from mlx_engine.utils.speculative_decoding import (
     is_speculative_decoding_supported,
     SpeculativeDecodingNotSupportedError,
 )
-from outlines.processors.structured import JSONLogitsProcessor
-from mlx_engine.utils.outlines_transformer_tokenizer import OutlinesTransformerTokenizer
+from mlx_engine.utils.outlines_transformer_tokenizer import json_logits_processor
 from mlx_engine.tool_runtime import (
     create_gemma4_reasoning_guard_logits_processor,
     create_gemma4_tool_context_from_prompt,
@@ -569,11 +568,7 @@ def _sequential_generation(
         # Add outlines logits processor if json_schema is provided
         if json_schema is not None:
             logits_processors.append(
-                JSONLogitsProcessor(
-                    json_schema,
-                    OutlinesTransformerTokenizer(model_kit.tokenizer._tokenizer),
-                    tensor_library_name="mlx",
-                )
+                json_logits_processor(json_schema, model_kit.tokenizer._tokenizer)
             )
 
         # Set up stop string processor if non-empty stop_strings are provided
@@ -789,11 +784,7 @@ def _batched_generation(
         # Add outlines logits processor if json_schema is provided
         if json_schema is not None:
             logits_processors.append(
-                JSONLogitsProcessor(
-                    json_schema,
-                    OutlinesTransformerTokenizer(model_kit.tokenizer._tokenizer),
-                    tensor_library_name="mlx",
-                )
+                json_logits_processor(json_schema, model_kit.tokenizer._tokenizer)
             )
 
         stream = model_kit.generate(
